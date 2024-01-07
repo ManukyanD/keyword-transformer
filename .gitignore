@@ -1,0 +1,5 @@
+/.idea
+/venv
+/**/runs
+
+__pycache__/
