@@ -59,7 +59,6 @@ def checkpoint(epoch_num, model, checkpoint_dir):
 
 def main():
     args = parse_args()
-    print(args.prenorm)
     os.makedirs(args.data_dir, exist_ok=True)
     os.makedirs(args.checkpoints_dir, exist_ok=True)
 
