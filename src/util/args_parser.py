@@ -69,9 +69,9 @@ def parse_args():
                         help='Time steps in patch (default: 1).')
     parser.add_argument('--patch-size-f', type=int, default=40,
                         help='Frequency steps in patch (default: 40).')
-    parser.add_argument('--prenorm', type=int, default=False,
-                        help='If True, use prenorm instead of postnorm (default: False).')
-    parser.add_argument('--approximate-gelu', type=int, default=False,
-                        help='If True, use approximate GELU activation (default: False).')
+    parser.add_argument('--prenorm',action='store_true',
+                        help='Use prenorm instead of postnorm.')
+    parser.add_argument('--approximate-gelu', action='store_true',
+                        help='Use approximate GELU activation.')
 
     return update_args(parser.parse_args())
