@@ -51,6 +51,14 @@ def parse_args():
                         help='How far to move in time between spectrogram time-slices (default: 10).')
     parser.add_argument('--n-mfcc', type=int, default=40,
                         help='Number of mfc coefficients to retain (default: 40).')
+    parser.add_argument('--time-masks-number', type=int, default=2,
+                        help='SpecAugment parameter, number of time masks (default: 2).')
+    parser.add_argument('--time-mask-max-size', type=int, default=25,
+                        help='SpecAugment parameter, max size of time mask (default: 25).')
+    parser.add_argument('--frequency-masks-number', type=int, default=2,
+                        help='SpecAugment parameter, number of frequency masks (default: 2).')
+    parser.add_argument('--frequency_mask_max_size', type=int, default=7,
+                        help='SpecAugment parameter, max size of frequency mask (default: 7).')
 
     # model args
     parser.add_argument('--num-layers', type=int, default=12,
@@ -69,7 +77,7 @@ def parse_args():
                         help='Time steps in patch (default: 1).')
     parser.add_argument('--patch-size-f', type=int, default=40,
                         help='Frequency steps in patch (default: 40).')
-    parser.add_argument('--prenorm',action='store_true',
+    parser.add_argument('--prenorm', action='store_true',
                         help='Use prenorm instead of postnorm.')
     parser.add_argument('--approximate-gelu', action='store_true',
                         help='Use approximate GELU activation.')

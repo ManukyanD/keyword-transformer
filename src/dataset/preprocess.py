@@ -1,5 +1,6 @@
 import torch
 import torchaudio
+import torchaudio.transforms as T
 
 from src.util.device import to_device
 
@@ -28,9 +29,15 @@ def init_data_preprocessor(args):
 
     mfcc = to_device(torchaudio.transforms.MFCC(
         melkwargs={"n_fft": args.n_fft, "hop_length": args.fft_hop_length, "normalized": True, "center": False}))
+    time_masking = T.TimeMasking(time_mask_param=args.time_mask_max_size)
+    frequency_masking = T.FrequencyMasking(freq_mask_param=args.frequency_mask_max_size)
 
     def preprocess(x):
         x = mfcc(x)
+        for _ in range(args.time_masks_number):
+            x = time_masking(x)
+        for _ in range(args.frequency_masks_number):
+            x = frequency_masking(x)
         return [transform(x).squeeze() for transform in transforms]
 
     return preprocess
