@@ -17,11 +17,15 @@ def train_one_epoch(epoch_num, model, train_loader, preprocess_fn, optimizer, lo
     model.train()
     epoch_loss = 0
     batch_running_loss = 0
+    accurate_predictions = 0
+    num_examples = 0
     for index, batch in enumerate(train_loader):
         batch = to_device(batch)
         x, y = batch
+        num_examples += x.size(0)
         x = preprocess_fn(x)
         prediction = model(x)
+        accurate_predictions += (torch.argmax(prediction, dim=1) == torch.argmax(y, dim=1)).sum().item()
         loss = loss_fn(prediction, y)
         epoch_loss += loss.item()
         batch_running_loss += loss.item()
@@ -31,26 +35,30 @@ def train_one_epoch(epoch_num, model, train_loader, preprocess_fn, optimizer, lo
         if index % 10 == 9:
             print(f'Batch: {index + 1}, loss: {batch_running_loss / 10}')
             batch_running_loss = 0
-    print_loss('Training loss', epoch_loss / len(train_loader), epoch_num)
+    report('Training', epoch_loss / len(train_loader), accurate_predictions / num_examples, epoch_num)
 
 
 def evaluate(epoch_num, model, test_loader, preprocess_fn, loss_fn):
     model.eval()
     test_loss = 0
+    accurate_predictions = 0
+    num_examples = 0
     with torch.no_grad():
         for batch in test_loader:
             batch = to_device(batch)
             x, y = batch
+            num_examples += x.size(0)
             x = preprocess_fn(x)
             prediction = model(x)
+            accurate_predictions += (torch.argmax(prediction, dim=1) == torch.argmax(y, dim=1)).sum().item()
             loss = loss_fn(prediction, y)
             test_loss += loss.item()
-    print_loss('Test loss', test_loss / len(test_loader), epoch_num)
+    report('Testing', test_loss / len(test_loader), accurate_predictions / num_examples, epoch_num)
 
 
-def print_loss(tag, loss, epoch):
-    summary_writer.add_scalar(tag, loss, epoch)
-    print(f'Epoch: {epoch}, {tag}: {loss}')
+def report(phase, loss, accuracy, epoch):
+    summary_writer.add_scalar(f'{phase} loss', loss, epoch)
+    print(f'Phase: {phase}, Epoch: {epoch}, Loss: {loss}, Accuracy: {round(accuracy * 100, 2)} %')
 
 
 def checkpoint(epoch_num, model, checkpoint_dir):
