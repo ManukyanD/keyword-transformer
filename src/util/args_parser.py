@@ -5,27 +5,8 @@ import os.path
 from src.util.constants import SAMPLING_RATE, AUDIO_CLIP_DURATION_MS
 
 
-def update_args(args):
-    args.label_count = len(args.wanted_words.split(',')) + 1
-    args.fft_window_size = round(SAMPLING_RATE * args.window_size_ms / AUDIO_CLIP_DURATION_MS)
-    args.n_fft = args.fft_window_size
-    args.fft_hop_length = round(SAMPLING_RATE * args.window_stride_ms / AUDIO_CLIP_DURATION_MS)
-    args.num_time_steps = math.ceil((SAMPLING_RATE - args.fft_window_size) / args.fft_hop_length) + 1
-    args.num_freq_bins = args.n_mfcc
-
-    assert args.num_freq_bins % args.patch_size_f == 0 and args.num_time_steps % args.patch_size_t == 0, \
-        (f"Spectrogram dimensions ({args.num_freq_bins} and {args.num_time_steps}) "
-         f"must be divisible by patch sizes ({args.patch_size_f} and {args.patch_size_t}, respectively).")
-
-    args.num_patches_t = args.num_time_steps / args.patch_size_t
-    args.num_patches_f = args.num_freq_bins / args.patch_size_f
-    args.num_patches = args.num_patches_t * args.num_patches_f
-    args.patch_size = args.patch_size_t * args.patch_size_f
-    return args
-
-
 def parse_args():
-    parser = argparse.ArgumentParser(description='Keyword Transformer in PyTorch')
+    parser = argparse.ArgumentParser(description='Keyword Transformer in PyTorch (Training)')
 
     parser.add_argument('--data-dir', type=str, default=os.path.join('.', 'data'),
                         help='The directory to download data to (default: "./data").')
@@ -83,3 +64,22 @@ def parse_args():
                         help='Use approximate GELU activation.')
 
     return update_args(parser.parse_args())
+
+
+def update_args(args):
+    args.label_count = len(args.wanted_words.split(',')) + 1
+    args.fft_window_size = round(SAMPLING_RATE * args.window_size_ms / AUDIO_CLIP_DURATION_MS)
+    args.n_fft = args.fft_window_size
+    args.fft_hop_length = round(SAMPLING_RATE * args.window_stride_ms / AUDIO_CLIP_DURATION_MS)
+    args.num_time_steps = math.ceil((SAMPLING_RATE - args.fft_window_size) / args.fft_hop_length) + 1
+    args.num_freq_bins = args.n_mfcc
+
+    assert args.num_freq_bins % args.patch_size_f == 0 and args.num_time_steps % args.patch_size_t == 0, \
+        (f"Spectrogram dimensions ({args.num_freq_bins} and {args.num_time_steps}) "
+         f"must be divisible by patch sizes ({args.patch_size_f} and {args.patch_size_t}, respectively).")
+
+    args.num_patches_t = args.num_time_steps / args.patch_size_t
+    args.num_patches_f = args.num_freq_bins / args.patch_size_f
+    args.num_patches = args.num_patches_t * args.num_patches_f
+    args.patch_size = args.patch_size_t * args.patch_size_f
+    return args

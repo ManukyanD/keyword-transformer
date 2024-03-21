@@ -1,3 +1,4 @@
+import json
 import os
 
 import torch
@@ -67,8 +68,12 @@ def report(loss, accuracy, step):
     print(f'Training Step: {step}, Loss: {loss}, Accuracy: {round(accuracy * 100, 2)} %')
 
 
-def checkpoint(epoch_num, model, checkpoint_dir):
-    torch.save(model, os.path.join(checkpoint_dir, f'epoch-{epoch_num}.pt'))
+def checkpoint(epoch_num, model, args_dict):
+    path = os.path.join(args_dict.get('checkpoints_dir'), f'epoch-{epoch_num}')
+    os.makedirs(path, exist_ok=True)
+    torch.save(model, os.path.join(path, f'model.pt'))
+    with open(os.path.join(path, 'args.json'), 'w') as file:
+        json.dump(args_dict, file, indent=4)
 
 
 def main():
@@ -86,9 +91,10 @@ def main():
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.l2_weight_decay)
     loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=args.label_smoothing)
 
+    args_dict = vars(args)
     for epoch in range(1, args.epochs + 1):
         train_one_epoch(epoch, model, train_loader, data_preprocessor, optimizer, loss_fn, args.batch_size)
-        checkpoint(epoch, model, args.checkpoints_dir)
+        checkpoint(epoch, model, args_dict)
         evaluate(epoch, model, test_loader, data_preprocessor, loss_fn, args.batch_size)
 
     summary_writer.close()

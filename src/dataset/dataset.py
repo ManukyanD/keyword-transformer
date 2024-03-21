@@ -39,6 +39,11 @@ class Dataset(SPEECHCOMMANDS):
         label = self.wanted_words_labels[word]
         if word == self.UNKNOWN_KEY:
             word = random.choice(self.unwanted_words)
-        waveform, sample_rate = torchaudio.load(random.choice(self.words_paths[word]))
-        waveform = torch.nn.functional.pad(waveform, pad=(0, SAMPLING_RATE - waveform.shape[1]), value=0)
+        waveform = self.load_audio(random.choice(self.words_paths[word]))
         return waveform, label
+
+    @staticmethod
+    def load_audio(path):
+        waveform, sample_rate = torchaudio.load(path)
+        waveform = torch.nn.functional.pad(waveform, pad=(0, SAMPLING_RATE - waveform.shape[1]), value=0)
+        return waveform

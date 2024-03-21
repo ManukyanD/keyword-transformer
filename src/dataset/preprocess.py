@@ -38,6 +38,6 @@ def init_data_preprocessor(args):
             x = time_masking(x)
         for _ in range(args.frequency_masks_number):
             x = frequency_masking(x)
-        return [transform(x).squeeze() for transform in transforms]
+        return [transform(x)[:, 0, :, :] for transform in transforms]
 
     return preprocess
